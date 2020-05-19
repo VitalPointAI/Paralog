@@ -2,6 +2,7 @@
     "name": "paralog",
     "version": "0.1.0",
     "private": false,
+    "homepage": "https://paralog.azurewebsites.net/index.html",
     "scripts": {
         "build": "npm run build:contract && npm run build:web",
         "build:contract": "node asconfig.js",
