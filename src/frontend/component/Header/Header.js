@@ -41,7 +41,7 @@ class Header extends Component {
             </Nav>
             <Nav>
                 <Nav.Link href="/">About</Nav.Link>
-                <Nav.Link href="/"><GrGithub /></Nav.Link>
+                <Nav.Link href="https://github.com/VitalPointAI/Paralog"><GrGithub /></Nav.Link>
             </Nav>
             </Navbar>
               
