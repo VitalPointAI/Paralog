@@ -1,0 +1,13 @@
+.creation-bigjump {
+    border-radius: 10px;
+    padding: 20px;
+    width: 75%;
+    margin: auto;
+}
+
+.creation-smalljump {
+    font-size: 0.75em;
+    border-radius: 10px;
+    padding: 20px;
+    display: inline-block;
+}

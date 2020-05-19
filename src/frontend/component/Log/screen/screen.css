@@ -1,0 +1,28 @@
+.board {
+    width: 100%;
+    margin: 1%;
+}
+
+.white {
+    color: #fff;
+    filter: brightness(50%);
+}
+
+.bold {
+    font-weight: 600;
+}
+
+.marginB {
+    margin-bottom: 30px;
+}
+
+.intro {
+    font-size: 0.7em;
+    font-weight: thin;
+    display: inline-block;
+    margin-top: 20px;
+}
+
+.card-body-adjustment {
+    padding: 0.2rem;
+}

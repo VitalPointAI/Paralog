@@ -1,0 +1,49 @@
+.wrapperS {
+    max-width: 800px;
+    margin: 2% auto;
+    display: flex;
+}
+
+.sharecard {
+    background-color: azure;
+    margin: auto;
+    padding: 2%;
+    display: flex;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.5);
+    cursor: pointer;
+    max-width: 50%;
+}
+
+.cardChar {
+    color: #2b73c7;
+}
+
+.text {
+    display: inline-block;
+    text-align: center;
+    padding: 0;
+}
+.flaticon {
+    font-size: 2.5em;
+    display: inline;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.small {
+    display: none;
+}
+
+@media all and (max-width: 415px) {
+    .text {
+        display: none;
+    }
+
+    .flaticon {
+        font-size: 1rem;
+        display: inline;
+        margin-left: 5px;
+        margin-right: 5px;
+    }
+}

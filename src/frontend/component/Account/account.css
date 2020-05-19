@@ -1,0 +1,10 @@
+.head {
+    font-weight: 600;
+}
+
+@media all and (min-width: 570px) {
+    .flex {
+       flex: unset;
+    }
+  }
+

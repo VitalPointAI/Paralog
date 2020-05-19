@@ -1,0 +1,87 @@
+{
+    "name": "paralog",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "build": "npm run build:contract && npm run build:web",
+        "build:contract": "node asconfig.js",
+        "build:web": "parcel build src/index.html --public-url ./",
+        "dev:deploy:contract": "near dev-deploy",
+        "deploy:contract": "near deploy",
+        "deploy": "npm run build && npm run deploy:contract",
+        "prestart": "npm run build:contract",
+        "start": "parcel src/index.html",
+        "dev": "nodemon --watch assembly -e ts --exec \"npm run start\"",
+        "test": "asp && npm run build:contract && jest test --runInBand"
+    },
+    "dependencies": {
+        "bootstrap": "^4.5.0",
+        "moment": "^2.25.3",
+        "near-api-js": "^0.25.0",
+        "project-name-generator": "^2.1.7",
+        "randomcolor": "^0.5.4",
+        "reac": "^0.0.0",
+        "react": "^16.11.0",
+        "react-bootstrap": "^1.0.1",
+        "react-copy-to-clipboard": "^5.0.2",
+        "react-datepicker": "^2.15.0",
+        "react-dom": "^16.11.0",
+        "react-icons": "^3.8.0",
+        "react-keyframes": "^0.2.3",
+        "react-router-dom": "^5.1.2",
+        "react-scripts": "3.4.0",
+        "regenerator-runtime": "^0.13.5",
+        "tinycolor2": "^1.4.1"
+    },
+    "devDependencies": {
+        "@babel/core": "^7.9.6",
+        "@babel/plugin-proposal-class-properties": "^7.8.3",
+        "assemblyscript": "^0.9.4",
+        "babel-jest": "^26.0.0",
+        "jest": "^26.0.1",
+        "jest-environment-node": "^26.0.0",
+        "near-sdk-as": "^0.3.2",
+        "near-shell": "^0.23.1",
+        "nodemon": "^2.0.3",
+        "parcel-bundler": "^1.12.4",
+        "react-test-renderer": "^16.13.1"
+    },
+    "babel": {
+        "presets": [
+            "@babel/preset-env",
+            "@babel/preset-react"
+        ],
+        "plugins": [
+            "@babel/plugin-proposal-class-properties"
+        ]
+    },
+    "eslintConfig": {
+        "extends": "react-app"
+    },
+    "jest": {
+        "moduleNameMapper": {
+            "\\.(jpg|ico|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/src/__mocks__/fileMock.js",
+            "\\.(css|less)$": "<rootDir>/src/__mocks__/fileMock.js"
+        },
+        "setupFiles": [
+            "<rootDir>/src/jest.init.js"
+        ],
+        "testEnvironment": "near-shell/test_environment",
+        "testPathIgnorePatterns": [
+            "<rootDir>/assembly/",
+            "<rootDir>/node_modules/"
+        ]
+    },
+    "browserslist": {
+        "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ],
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ]
+    }
+}
