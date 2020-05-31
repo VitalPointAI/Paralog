@@ -18,12 +18,16 @@ async function InitContract() {
         )
     );
 
+    console.log(window.near);
+
     // needed to access wallet login
     window.walletAccount = new nearlib.WalletAccount(window.near);
 
     // getting the account ID.  If unauthorized yet, it's just an empty string.
     window.accountId = window.walletAccount.getAccountId();
-    
+
+   
+   
     // initializing contract APIs by contract name and configuration
     let acct = await new nearlib.Account(
         window.near.connection,
@@ -41,18 +45,21 @@ async function InitContract() {
                 "getJump",
                 "getSender",
                 "getJumps",
+                "getIdentity",
             ],
             // change methods can modify the state, but you don't get the returned value when called
             changeMethods: [
                 "logJump",
                 "setJump",
                 "setJumpsByJumper",
+                "setIdentity",
                 "deleteJumpProfile",
             ],
             // sender is the account ID to initialize transactions
             sender: window.accountId,
         }
     );
+
 }
 
 

@@ -18,7 +18,8 @@ export const AlertDismissible = ({ show }) => {
 
 class Log extends Component {
     render() {
-        let {login, load, handleChange, handleDateChange, jumpName, jumpDate, dropAltitude, freefall} = this.props
+        let {login, load, handleChange, handleDateChange, accountId, jumpName, jumpDate, dropAltitude, freefall} = this.props
+        
         if (load && !login) {return <Redirect to="/" />}
 
         return (
@@ -26,7 +27,7 @@ class Log extends Component {
             <AlertDismissible show={true} />
                 <h2 className="head">Log a Jump</h2>
                 <div className="content">
-                    <Info  handleChange={handleChange} handleDateChange={handleDateChange} jumpName={jumpName}/>
+                    <Info  handleChange={handleChange} handleDateChange={handleDateChange} accountId={accountId} jumpName={jumpName}  />
                     <Screen jumpDate={jumpDate} dropAltitude={dropAltitude} freefall={freefall}/>
                 </div>
             </div>

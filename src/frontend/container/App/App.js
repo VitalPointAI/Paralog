@@ -13,7 +13,11 @@ import Animation from '../../component/Log/animation/animation';
 import SocialShare from '../../component/SocialShare/SocialShare';
 import ShowPage from '../../component/showpage/showpage';
 
+import dotenv from 'dotenv';
+
 import './App.css';
+
+dotenv.config();
 
 let randomColor = require('randomcolor');
 let generate = require('project-name-generator');
@@ -36,7 +40,10 @@ class App extends Component {
             jumpDate: new Date().toString().substring(0,16),
             dropAltitude: '',
             freefall: '',
-            jumpIdentifier: ''
+            jumpIdentifier: '',
+            db: '',
+            token: '',
+            threadId: ''
         }
         this.signedInFlow = this.signedInFlow.bind(this);
         this.requestSignIn = this.requestSignIn.bind(this);
@@ -63,15 +70,19 @@ class App extends Component {
         return this.props.contract.getJumps({ jumper: jumper });
     }
 
+   
+
     async signedInFlow() {
         const accountId = await this.props.wallet.getAccountId();
+
         this.getJumps(accountId).then(res => {
             console.log(res.len)
             console.log(res)
             this.setState({
                 loggedIn: true,
-                accountId
+                accountId: accountId
             });
+        
             if (res == null || res.jumps == null || res.jumps.length < 1) {
                 this.setState({
                     loaded: true
@@ -126,7 +137,7 @@ class App extends Component {
     }
 
     render() {
-        let { loggedIn, loaded, jumps, accountId, jumpName, jumpDate, dropAltitude, freefall, backDrop, back, jumpIdentifier } = this.state
+        let { loggedIn, loaded, jumps, accountId, jumpName, jumpDate, dropAltitude, freefall, backDrop, back, jumpIdentifier, db, token, threadId } = this.state
         let { contract } = this.props
         return (
             <div className="App">
@@ -157,10 +168,15 @@ class App extends Component {
                             load={loaded}
                             handleChange={this.handleChange}
                             handleDateChange={this.handleDateChange}
+                            db={db}
+                            token={token}
+                            threadId={threadId}
+                            accountId={accountId}
                             jumpName={jumpName}
                             jumpDate={jumpDate}
                             dropAltitude={dropAltitude}
                             freefall={freefall}
+                           
                         />} />
                     <Route
                         exact

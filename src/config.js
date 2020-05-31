@@ -1,5 +1,5 @@
 /* TODO: fill this in!*/
-const CONTRACT_NAME = "paralog.vitalpoint.testnet";
+const CONTRACT_NAME = "paralog.vitalpointai.testnet";
 
 function getConfig(env) {
   switch (env) {
