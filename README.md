@@ -4,24 +4,40 @@
 ## Parachuting meets blockchain.  Provable, immutable, shareable.
 ### Demo:  [PARALOG](https://hungry-euler-2a0e33.netlify.app/)
 
-### PROBLEM PARALOG SOLVES
+![alt text](https://github.com/ALuhning/Paralog/blob/master/src/assets/paralog-display.png "PARALOG Dapp")
+
+### PROBLEM PARALOG SOLVES AND PRACTICALITY IN REAL WORLD
+
+I'm both a civilian and miltary parachutist and have been looking for a solution to the problem described below for almost fifteen years.  **With blockchain and NEAR - a practical, real-world solution is at hand.**  
 
 Paralog endeavours to modernize several aspects of parachute records, tracking, instruction/coaching and drop zone operations.  This initial version's working demo addresses a portion of the first feature: jump logs.  The other features are still to come and a roadmap is being prepared.
 
-It's estimated that there are approximately 100,000+ civilian skydivers globally.  That number increases if including military parachutists.  All of them rely on their jump record to track how many times they've jumped, where, under what conditions including altitude, drop zone, actions performed in the air, equipment used, aircraft used, how landing was, and so on.  It is all information that is critically important for their development in the sport or profession.
+It's estimated that there are approximately 100,000+ civilian skydivers globally.  That number increases if including military parachutists.  **All of them** rely on their jump record to track how many times they've jumped, where, under what conditions including altitude, drop zone, actions performed in the air, equipment used, aircraft used, how landing was, and so on.  It is all information that is critically important for their development in the sport or profession.
 
 That jump record is currently typically analog - a log book - that is filled out after each jump and it is the jumper's responsibility to protect it.  The skydiver will then have the jumpmaster or instructor sign it indicating the parachutist completed the jump as logged.  
 
-In a sport/profession where currency and safety are paramount, the parachutist's jump record is vital information.  If destroyed, damaged, tampered with or falsified it would be incredibly difficult to replace and could potentially lead to catastrophic consequences.  Further it is required to prove:
+In a sport/profession where currency and safety are paramount, **the parachutist's jump record is vital information.**  If destroyed, damaged, tampered with or falsified it would be incredibly difficult to replace and could potentially lead to catastrophic consequences.  Further it is required to prove:
 
 -currency as a parachutist must jump every 60-90 days in order to remain current/not have to conduct refresher training; and
 -proficiency as proof of skill is required to progress and obtain higher certificates/licenses
 
 By logging jumps to a blockchain (NEAR) - we remove a good deal of risk associated with current practices. Further we standardize log entries and information making it easier to conduct data analysis and improve the legitimacy of injury, malfunction and related investigations resulting from parachuting incidents.
 
+### Testing the Demo
+
+*Note that some aspects of the Dapp are placeholders or links that won't lead anywhere - they are features waiting to be developed.*
+
+Should be fairly self explanatory/intuitive:
+
+1. Hit the Start Logging button on main page
+2. Once logged in - top right - click on + sign to make a log entry.
+3. Fill in the jump log form and hit log button
+4. From there, you can view the jumps you've logged, click on them, share them on twitter/facebook, or delete them through your profile (dropdown).
+
 ### Technicality of Implementation
 
-Coming to the hackathon late and never having used/heard of NEAR before, I quickly read all I could, asked questions in the chat, and ultimately used the Corgi repository as a starting point to learn how NEAR works and reach the current state of the Dapp.  Technical details include:
+Coming to the hackathon late and never having used/heard of NEAR before, I quickly read all I could, asked questions in the chat, and ultimately used the Corgi repository as a starting point to quickly learn how NEAR works and get the Dapp finished to its current state of functionality. Technical details include:
+
 1. React frontend with several components
 2. UI/UX designed using react-bootstrap, react-icons
 3. Used near-api-js, near-sdk-as  (may delve into Rust in the future)
@@ -35,4 +51,6 @@ Jump entries need to be attested to by a licensed skydiver/instructor.  The Dapp
 
 This opens the door to providing a mechanism for novice skydivers to find/hire instructors and coaches - I see a jump economy emerging from use of the Dapp where people could pay instructors/coaches in NEAR tokens and/or use NEAR tokens as jump manifest tickets allowing better tracking and convenience.
 
-With the fast/cheap transactions I've experienced with the NEAR blockchain - see massive potential for this Dapp and related types of Dapps and am excited to continue developing with it.
+#### With the fast/cheap transactions I've experienced with the NEAR blockchain - I see massive potential for this Dapp and related types of Dapps and am excited to continue developing with it.
+
+Thank-you for your time/consideration and the opportunity to participate in this hackathon.
