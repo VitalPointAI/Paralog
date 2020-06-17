@@ -6,19 +6,27 @@ import {
     base64,
     math,
 } from "near-sdk-as";
-import { MilitaryParachuteJump, MilitaryJumpMetaData, MilitaryJumpArray, MilitaryJumpPhotos, MilitaryJumpVideos, UserIdentity } from "./model";
+import {  MilitaryParachuteJump, MilitaryJumpMetaData, MilitaryJumpArray, 
+          DropZone, DropZoneArray, DropZoneMetaData, 
+          UserIdentity } from "./model";
 
 const JUMPER_IDENTIFIER: u32 = 8;
+const REGISTRAR_IDENTIFIER: u32 = 8;
 
 // Collections where we store data
+
+// JUMPS
 // store all unique parachute jumps
 let parachuteJumps = new PersistentMap<string, MilitaryParachuteJump>("jumps");
 // store all parachute jumps of a jumper
 let jumpsByJumper = new PersistentMap<string, MilitaryJumpMetaData>("jumpsByJumper");
-// store all photo QID hashes of a jump
-let jumpPhotos = new PersistentMap<string, MilitaryJumpPhotos>("jumpPhotos");
-// store all video QID hashes of a jump
-let jumpVideos = new PersistentMap<string, MilitaryJumpVideos>("jumpVideos");
+
+// DROP ZONES
+// store all unique drop zones
+let dropZones = new PersistentMap<string, DropZone>("dropzone");
+// store all drop zones of a registrar
+let dropZonesByRegistrar = new PersistentMap<string, DropZoneMetaData>("dropZonesByRegistrar");
+
 // store user identity
 let userIdentity = new PersistentMap<string, UserIdentity>("userIdentity");
 
@@ -125,101 +133,151 @@ function decrementJumperJumps(from: string, tokenId: string): void {
   deleteJump(tokenId);
 }
 
-// Create unique Jump
+  // Create unique Jump
 
 export function logMilitaryJump(
-  jumpName: string,
-  jumpDate: string,
-  dropZone: string,
-  dropAltitude: u16,
-  aircraftType: string,
-  jumpType: string,
-  milExitType: string,
-  milMainCanopyType: string,
-  milMainCanopySN: string,
-  milResCanopyType: string,
-  milResCanopySN: string,
-  pullAltitude: u16,
-  freefall: u8,
-  milFFCanopyType: string,
-  milFFCanopySN: string,
-  milFFResCanopyType: string,
-  milFFResCanopySN: string,
+  jumpIdentifier: string,
+  verificationHash: string
 ): MilitaryParachuteJump {
-  let jumpIdentifier = generateId();
   logging.log("logging jump");
   return _logMilitaryJump(
-    jumpName,
-    jumpDate,
-    dropZone,
     jumpIdentifier,
-    dropAltitude,
-    aircraftType,
-    jumpType,
-    freefall,
-    milExitType,
-    milMainCanopyType,
-    milMainCanopySN,
-    milResCanopyType,
-    pullAltitude,
-    milFFCanopyType,
-    milFFCanopySN,
-    milFFResCanopyType,
-    milFFResCanopySN
+    verificationHash
   );
 }
 
   function _logMilitaryJump(
-    jumpName: string,
-    jumpDate: string,
-    dropZone: string,
     jumpIdentifier: string,
-    dropAltitude:u16,
-    aircraftType: string,
-    jumpType: string,
-    freefall: u8,
-    milExitType: string,
-    milMainCanopyType: string,
-    milMainCanopySN: string,
-    milResCanopyType: string,
-    pullAltitude: u16,
-    milFFCanopyType: string,
-    milFFCanopySN: string,
-    milFFResCanopyType: string,
-    milFFResCanopySN: string
+    verificationHash: string
   ): MilitaryParachuteJump {
     logging.log("start logging jump");
     let jump = new MilitaryParachuteJump();
     jump.jumper = context.sender;
-    jump.jumpName = jumpName;
-    jump.jumpDate = jumpDate;
     jump.jumpIdentifier = jumpIdentifier;
-    jump.dropAltitude = dropAltitude;
-    jump.aircraftType = aircraftType;
-    jump.jumpType = jumpType;
-    jump.freefall = freefall;
-    jump.milExitType = milExitType;
-    jump.milMainCanopyType = milMainCanopyType;
-    jump.milMainCanopySN = milMainCanopySN;
-    jump.milResCanopyType = milResCanopyType;
-    jump.pullAltitude = pullAltitude;
-    jump.milFFCanopyType = milFFCanopyType;
-    jump.milFFCanopySN = milFFCanopySN;
-    jump.milFFResCanopyType = milFFResCanopyType;
-    jump.milFFResCanopySN = milFFResCanopySN;
+    jump.verificationHash = verificationHash;
     setJump(jump);
     setJumpsByJumper(jump);
     logging.log("logged new jump");
     return jump;
   }
-
-  function generateId(): string {
-    let buf = math.randomBuffer(JUMPER_IDENTIFIER);
-    let b64 = base64.encode(buf);
-    return b64;
-  }
   
-  function randomNum(): u32 {
+  // Methods for Drop Zone Registrars
+
+export function registrarOfDropZone(tokenId: string): string {
+  let dz = getDropZone(tokenId);
+  let registrar = dz.registrar;
+  return registrar;
+}
+
+export function getDropZones(registrar: string): DropZoneArray{
+logging.log("get drop zones");
+let _dropZones = getDropZonesByRegistrar(registrar)
+let _dropZoneList = new Array<DropZone>();
+for (let i=0; i<_dropZones.length; i++) {
+  if (dropZones.contains(_dropZones[i])){
+    let _dropZone = getDropZone(_dropZones[i]);
+    _dropZoneList.push(_dropZone);
+  }
+}
+let dzl = new DropZoneArray();
+dzl.dropZones = _dropZoneList;
+dzl.len = _dropZoneList.length;
+return dzl;
+}
+
+export function getDropZonesByRegistrar(registrar: string): Array<string> {
+let dzId = dropZonesByRegistrar.get(registrar);
+if(!dzId) {
+  return new Array<string>();
+}
+let id = dzId.dropZoneRegister;
+return id;
+}
+
+export function setDropZonesByRegistrar(dropZone: DropZone): void {
+let _dzId = getDropZonesByRegistrar(dropZone.registrar);
+if(_dzId == null) {
+  _dzId = new Array<string>();
+  _dzId.push(dropZone.dzId);
+} else {
+  _dzId.push(dropZone.dzId);
+}
+let jo = new DropZoneMetaData();
+jo.dropZoneRegister = _dzId;
+dropZonesByRegistrar.set(dropZone.registrar, jo);
+}
+
+// Methods for Drop Zones
+
+export function getDropZone(tokenId: string): DropZone {
+  let dropZone = dropZones.getSome(tokenId);
+  return dropZone;
+}
+
+export function setDropZone(dropZone: DropZone): void {
+  dropZones.set(dropZone.dzId, dropZone);
+}
+
+export function getRegistrar(): string {
+  return context.sender;
+}
+
+function deleteDropZone(tokenId: string): void {
+  dropZones.delete(tokenId);
+}
+
+export function deleteDropZonesProfile(tokenId: string): DropZoneArray {
+let dropZone = getDropZone(tokenId);
+decrementRegistrarDropZones(dropZone.registrar, tokenId);
+let leftDropZones = getDropZones(dropZone.registrar);
+logging.log("after dz delete");
+return leftDropZones;
+}
+
+function decrementRegistrarDropZones(from: string, tokenId: string): void {
+let _dzId = getDropZonesByRegistrar(from);
+for (let i=0; i<_dzId.length; i++) {
+  if (tokenId == _dzId[i]) {
+    _dzId.splice(i, 1);
+    logging.log("match");
+    break;
+  }
+}
+let jo = new DropZoneMetaData();
+jo.dropZoneRegister = _dzId;
+dropZonesByRegistrar.set(from, jo);
+deleteDropZone(tokenId);
+}
+
+// Create unique Drop Zone
+
+export function registerDropZone(
+dzId: string,
+dzVerificationHash: string
+): DropZone {
+logging.log("registering drop zone");
+return _registerDropZone(
+  dzId,
+  dzVerificationHash
+);
+}
+
+function _registerDropZone(
+  dzId: string,
+  dzVerificationHash: string
+): DropZone {
+  logging.log("start registering drop zone");
+  let dropZone = new DropZone();
+  dropZone.registrar = context.sender;
+  dropZone.dzId = dzId;
+  dropZone.dzVerificationHash = dzVerificationHash;
+  setDropZone(dropZone);
+  setDropZonesByRegistrar(dropZone);
+  logging.log("registered new drop zone");
+  return dropZone;
+}
+
+function randomNum(): u32 {
     let buf = math.randomBuffer(4);
     return (
       (((0xff & buf[0]) << 24) |
@@ -228,9 +286,14 @@ export function logMilitaryJump(
         ((0xff & buf[3]) << 0)) %
       100
     );
-  }
+}
 
-  //ERROR handling
-  function _jumpDNEError(jump: MilitaryParachuteJump): boolean {
+
+//ERROR handling
+function _jumpDNEError(jump: MilitaryParachuteJump): boolean {
     return assert(jump == null, "This jump does not exist");
-  }
+}
+
+function _dropZoneDNEError(dropZone: DropZone): boolean {
+    return assert(dropZone == null, "This drop zone does not exist");
+}

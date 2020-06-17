@@ -8,6 +8,7 @@ import './account.css';
 class Account extends Component {
     render() {
         let { jumps, login, load } = this.props
+        console.log('jumps ', jumps)
         if (load && !login) {return <Redirect to="/" />}
         let Jumps = 'loading'
         if (jumps && jumps.length === 0) { return <Redirect to="/log" /> }
@@ -17,10 +18,10 @@ class Account extends Component {
                     <Card key={jump.jumpIdentifier} className="spacing">
                         <Card.Header>
                             <Link to={{
-                                pathname: "/@" + jump.jumpName,
+                                pathname: "/@" + jump.jumpIdentifier,
                                 hash: jump.jumpIdentifier
                                 }} key={jump.jumpIdentifier}>
-                            <h3>{jump.jumpName}</h3>
+                            <h3>{jump.jumpIdentifier}</h3>
                             </Link>
                         </Card.Header>
                         <Card.Body>

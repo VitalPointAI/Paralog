@@ -12,12 +12,24 @@ export const dropZoneSchema = {
         type: 'string',
       },
       latitude: {
-        type: 'string',
+        type: 'number',
       },
       longitude: {
+        type: 'number',
+      },
+      registrationDate: {
+        type: 'integer',
+        minimum: 0,
+      },
+      registrar: {
         type: 'string',
       },
-      city: {
+      dropZonePhotos: {
+        type: 'array',
+        items: {
+          },
+      },
+      dzVerificationHash: {
         type: 'string',
       },
     },

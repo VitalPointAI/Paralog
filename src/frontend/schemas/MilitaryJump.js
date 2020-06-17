@@ -1,5 +1,5 @@
 export const militaryJumpSchema = {
-    $id: 'https://example.com/astronaut.schema.json',
+    $id: 'https://vitalpoint.ai/militaryjump.schema.json',
     $schema: 'http://json-schema.org/draft-07/schema#',
     title: 'MilitaryJump',
     type: 'object',
@@ -15,7 +15,8 @@ export const militaryJumpSchema = {
         type: 'string',
       },
       jumpDate: {
-        type: 'string',
+        type: 'integer',
+        minimum: 0,
       },
       dropZone: {
         type: 'string',
@@ -66,14 +67,17 @@ export const militaryJumpSchema = {
         type: 'string',
       },
       jumpPhotos: {
-        type: 'string',
-        contentEncoding: 'base64',
-        contentMediaType: 'image/png',
+        type: 'array',
+        items: {
+          },
       },
       jumpVideos: {
         type: 'string',
         contentEncoding: 'base64',
         contentMediaType: 'audio/mpeg',
+      },
+      verificationHash: {
+        type: 'string',
       },
     },
 }

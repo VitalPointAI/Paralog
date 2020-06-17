@@ -12,47 +12,80 @@ import Single from '../../component/Single/single';
 import Animation from '../../component/Log/animation/animation';
 import SocialShare from '../../component/SocialShare/SocialShare';
 import ShowPage from '../../component/showpage/showpage';
-
-import dotenv from 'dotenv';
+import DropZoneRegister from '../../component/DropZone/dzRegister';
+import DropZoneRegistering from '../../component/DropZone/DropZoneRegistering/registering'
 
 import './App.css';
 
-dotenv.config();
-
-let randomColor = require('randomcolor');
 let generate = require('project-name-generator');
 
-export const DEFAULT_GAS_VALUE = 10000000000000;
+export const DEFAULT_GAS_VALUE = 100000000000000;
 
 class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
+
+            //Misc State
             loaded: false,
             loggedIn: false,
             backDrop: false,
             back: false,
             jumps: [],
+            dropZones: [],
             accountId: '',
-            color: randomColor(),
-            backgroundColor: randomColor(),
+
+            //Jump Log State
             jumpName: generate({ words: 2, alliterative: true }).spaced,
-            jumpDate: new Date().toString().substring(0,16),
-            dropAltitude: '',
+            jumpDate: new Date().getTime(),
+            jumper: this.props.accountId,
             freefall: '',
+            dropAltitude: '',
+            pullAltitude: '',
+            dropZone: '',
+            aircraftType: '',
+            jumpType: '',
+            milExitType: '',
+            milMainCanopyType: '',
+            milMainCanopySN: '',
+            milResCanopyType: '',
+            milResCanopySN: '',
+            milFFCanopyType: '',
+            milFFCanopySN: '',
+            milFFResCanopyType: '',
+            milFFResCanopySN: '',
+            jumpPhotos: [],
+            jumpVideos: '',
+            verificationHash: '',
             jumpIdentifier: '',
-            db: '',
-            token: '',
-            threadId: ''
+
+            //Drop Zone Register State
+            dzId: '',
+            dropZoneName: '',
+            dzVerificationHash: '',
+            dzDateRegistered: new Date().getTime(),
+            dzLatitude: '44.1182789',
+            dzLongitude: '-77.55354170',
+            dzRegistrar: this.props.accountId,
+            dzPhotos: [],
+
+            //ThreadDB State
+            threadId: '',
+            db: ''
         }
         this.signedInFlow = this.signedInFlow.bind(this);
         this.requestSignIn = this.requestSignIn.bind(this);
     }
 
     componentDidMount() {
-        let loggedIn = window.walletAccount.isSignedIn();
+      
+        console.log('db props', this.props.db)
+        let loggedIn = window.walletAccount.isSignedIn()
+
         if (loggedIn) {
             this.signedInFlow();
+           
+           
         } else {
             this.signedOutFlow();
         }
@@ -70,10 +103,16 @@ class App extends Component {
         return this.props.contract.getJumps({ jumper: jumper });
     }
 
-   
+    getDropZones = (registrar) => {
+        return this.props.contract.getDropZones({ registrar: registrar });
+    }
 
     async signedInFlow() {
         const accountId = await this.props.wallet.getAccountId();
+            this.setState({
+                accountId: accountId
+            })
+            console.log('signed in accountid ', this.state.accountId)
 
         this.getJumps(accountId).then(res => {
             console.log(res.len)
@@ -120,7 +159,7 @@ class App extends Component {
 
     handleDateChange = ({ name, value }) => {
         this.setState({
-            [name]: value.toString().substring(0,16)
+            [name]: value
         })
     }
 
@@ -137,113 +176,227 @@ class App extends Component {
     }
 
     render() {
-        let { loggedIn, loaded, jumps, accountId, jumpName, jumpDate, dropAltitude, freefall, backDrop, back, jumpIdentifier, db, token, threadId } = this.state
-        let { contract } = this.props
+        let { loggedIn, loaded, backDrop, jumps, dropZones, back, accountId, jumpIdentifier, verificationHash,
+            jumper, jumpName, jumpDate, dropAltitude, freefall, pullAltitude,
+            dropZone, aircraftType, jumpType, milExitType, milFFCanopySN, milFFCanopyType,
+            milResCanopyType, milFFResCanopySN, milMainCanopyType, milMainCanopySN,
+            milResCanopySN, milFFResCanopyType, jumpPhotos, jumpVideos, infoWindow, 
+            
+            dzId, dropZoneName, dzDateRegistered, dzLatitude, dzLongitude, dzRegistrar, dzVerificationHash, dzPhotos } = this.state
+
+        console.log('before props ', accountId, jumpIdentifier, verificationHash)
+        let { contract, db } = this.props
         return (
+
             <div className="App">
+
                 <Header
                     login={loggedIn}
                     load={loaded}
                     requestSignIn={this.requestSignIn}
                     requestSignOut={this.requestSignOut}
                     accountId={accountId}
-                    length={jumps.length}
-                    handleChange={this.handleChange} />
+                    jumpsLength={jumps.length}
+                    dropZonesLength={dropZones.length}
+                    handleChange={this.handleChange} 
+                />
+
                 <Switch>
+
                     <Route
                         exact
                         path='/'
-                        render={() => <Home
-                            login={loggedIn}
-                            load={loaded}
-                            requestSignIn={this.requestSignIn}
-                            accountId={accountId}
-                            length={jumps.length} />}
+                        render={() => 
+                            <Home
+                                login={loggedIn}
+                                load={loaded}
+                                requestSignIn={this.requestSignIn}
+                                accountId={accountId}
+                                jumpsLength={jumps.length}
+                                dropZonesLength={dropZones.length}
+                            />
+                        }
                     />
+
                     <Route
                         exact
                         path="/log"
-                        render={() => <Log
-                            login={loggedIn}
-                            load={loaded}
-                            handleChange={this.handleChange}
-                            handleDateChange={this.handleDateChange}
-                            db={db}
-                            token={token}
-                            threadId={threadId}
-                            accountId={accountId}
-                            jumpName={jumpName}
-                            jumpDate={jumpDate}
-                            dropAltitude={dropAltitude}
-                            freefall={freefall}
-                           
-                        />} />
+                        render={() => 
+                            <Log
+                                login={loggedIn}
+                                load={loaded}
+                                handleChange={this.handleChange}
+                                handleDateChange={this.handleDateChange}
+                                db={db.db}
+                                threadId={db.threadId}
+                                jumpIdentifier={jumpIdentifier}
+                                verificationHash={verificationHash}
+                                accountId={accountId}
+                                jumpName={jumpName}
+                                jumpDate={jumpDate}
+                                jumper={jumper}
+                                freefall={freefall}
+                                dropAltitude={dropAltitude}
+                                pullAltitude={pullAltitude}
+                                dropZone={dropZone}
+                                aircraftType={aircraftType}
+                                jumpType={jumpType}
+                                milExitType={milExitType}
+                                milMainCanopyType={milMainCanopyType}
+                                milMainCanopySN={milMainCanopySN}
+                                milResCanopyType={milResCanopyType}
+                                milResCanopySN={milResCanopySN}
+                                milFFCanopyType={milFFCanopyType}
+                                milFFCanopySN={milFFCanopySN}
+                                milFFResCanopyType={milFFResCanopyType}
+                                milFFResCanopySN={milFFResCanopySN}
+                                jumpPhotos={jumpPhotos}
+                                jumpVideos={jumpVideos}
+                            />
+                        } 
+                    />
+
                     <Route
                         exact
                         path="/account"
-                        render={() => <Account
-                            load={loaded}
-                            login={loggedIn}
-                            jumps={jumps}
-                        />} />
+                        render={() => 
+                            <Account
+                                load={loaded}
+                                login={loggedIn}
+                                jumps={jumps}
+                                db={db.db}
+                                threadId={db.threadId}
+                            />
+                        }
+                    />
+
                     <Route
                         exact
                         path="/profile"
-                        render={() => <Profile
-                            load={loaded}
-                            login={loggedIn}
-                            jumps={jumps}
-                            contract={contract}
-                            handleChange={this.handleChange} />} />
+                        render={() => 
+                            <Profile
+                                load={loaded}
+                                login={loggedIn}
+                                jumps={jumps}
+                                contract={contract}
+                                db={db.db}
+                                threadId={db.threadId}
+                                handleChange={this.handleChange} 
+                            />
+                        }
+                    />
+
                     <Route
                         exact
                         path="/@:name"
-                        render={() => <Single
-                            load={loaded}
-                            login={loggedIn}
-                            contract={contract}
-                            jumps={jumps}
-                            backDrop={backDrop}
-                            back={back}
-                            backdropCancelHandler={this.backdropCancelHandler}
-                            backShowHandler={this.backShowHandler}
-                            backCancelHandler={this.backCancelHandler}
-                            handleChange={this.handleChange}
-                            accountId={accountId}
-                        />} />
+                        render={() => 
+                            <Single
+                                load={loaded}
+                                login={loggedIn}
+                                contract={contract}
+                                jumps={jumps}
+                                db={db.db}
+                                threadId={db.threadId}
+                                backDrop={backDrop}
+                                back={back}
+                                backdropCancelHandler={this.backdropCancelHandler}
+                                backShowHandler={this.backShowHandler}
+                                backCancelHandler={this.backCancelHandler}
+                                handleChange={this.handleChange}
+                                accountId={accountId}
+                            />
+                        }
+                    />
+
                     <Route
                         exact
                         path="/share"
-                        render={() => <SocialShare
-                            load={loaded}
-                            login={loggedIn}
-                            contract={contract}
-                            requestSignIn={this.requestSignIn}
-                        />} />
+                        render={() => 
+                            <SocialShare
+                                load={loaded}
+                                login={loggedIn}
+                                contract={contract}
+                                requestSignIn={this.requestSignIn}
+                            />
+                        }
+                    />
+
                     <Route
                         exact
                         path="/logging"
-                        render={() => <Animation
-                            load={loaded}
-                            login={loggedIn}
-                            jumpName={jumpName}
-                            jumpDate={jumpDate}
-                            handleChange={this.handleChange}
-                            jumps={jumps}
-                            contract={contract}
-                            dropAltitude={dropAltitude}
-                            freefall={freefall}
-                            jumpIdentifier={jumpIdentifier}
-                            accountId={accountId}
-                        />} />
+                        render={() => 
+                            <Animation
+                                load={loaded}
+                                login={loggedIn}
+                                handleChange={this.handleChange}
+                                jumpName={jumpName}
+                                jumps={jumps}
+                                contract={contract}
+                                jumpIdentifier={jumpIdentifier}
+                                verificationHash={verificationHash}
+                                accountId={accountId}
+                            />
+                        }
+                    />
+
+                    <Route
+                        exact
+                        path="/registering"
+                        render={() => 
+                            <DropZoneRegistering
+                                load={loaded}
+                                login={loggedIn}
+                                handleChange={this.handleChange}
+                                dropZoneName={dropZoneName}
+                                dropZones={dropZones}
+                                contract={contract}
+                                dzId={dzId}
+                                dzVerificationHash={dzVerificationHash}
+                                dzRegistrar={dzRegistrar}
+                            />
+                        }
+                    />
+
+                    <Route
+                        exact
+                        path="/dropzone-register"
+                        render={() => 
+                            <DropZoneRegister
+                                load={loaded}
+                                login={loggedIn}
+                                accountId={accountId}
+                                jumps={jumps}
+                                contract={contract}
+                                db={db.db}
+                                threadId={db.threadId}
+                                handleChange={this.handleChange}
+                                dzId={dzId}
+                                dzDateRegistered={dzDateRegistered}
+                                dzLatitude={dzLatitude}
+                                dzLongitude={dzLongitude}
+                                dzRegistrar={dzRegistrar}
+                                dzVerificationHash={dzVerificationHash}
+                                dropZoneName={dropZoneName}
+                                dzPhotos={dzPhotos}
+
+                            />
+                        }
+                    />
+
                     <Route
                         exact
                         path="/showcase"
-                        render={() => <ShowPage
-                            jumps={jumpArray}
-                        />} />
+                        render={() => 
+                            <ShowPage
+                                jumps={jumpArray}
+                            />
+                        }
+                    />
+
                     <Route render={() => <h1>Not found</h1>} />
+
                 </Switch>
+
                 <Footer />
             </div>
         )

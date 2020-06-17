@@ -1,17 +1,14 @@
 import * as nacl from 'tweetnacl';
-import dotenv from 'dotenv'
 
 const keccak256 = require('keccak256');
 
-dotenv.config();
-const APPID = process.env.APPID
     /**
     read private key from local storage
     - if found, recreate the related key pair
     - if not found, create a new key pair and save it to local storage
     */
 export function parseEncryptionKey(accountId) {
-    const keyKey = "enc_key:" + accountId + ":" + APPID + ":";
+    const keyKey = "enc_key:" + accountId + ":" + process.env.APPID + ":";
     let key = localStorage.getItem(keyKey);
     if (key) {
     const buf = Buffer.from(key, 'base64');

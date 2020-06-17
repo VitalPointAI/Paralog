@@ -7,8 +7,8 @@ import Features from './features/features'
 import './home.css';
 class Home extends Component {
     render() {
-        let { login, load, requestSignIn, accountId, length } = this.props
-        if (login && length === 0) {return <Redirect to="/log"/>}
+        let { login, load, requestSignIn, accountId, jumpsLength, dropZonesLength } = this.props
+      //  if (login && jumpsLength === 0) {return <Redirect to="/log"/>}
         return (
           <Container>
                 <Poster 

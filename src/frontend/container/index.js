@@ -8,7 +8,7 @@ class AppBuilder extends Component {
     render() {
         return (
             <BrowserRouter basename={process.env.PUBLIC_URL}>
-                <App contract={this.props.contract} wallet={this.props.wallet} />
+                <App contract={this.props.contract} wallet={this.props.wallet} db={this.props.db}/>
             </BrowserRouter>
         );
     }

@@ -8,29 +8,44 @@ import {DEFAULT_GAS_VALUE} from "../../../container/App/App";
 
 import './animation.css';
 class Animation extends Component {
-    state = {
-        running: true
+    constructor(props) {
+        super(props)
+        this.state = {
+            running: true,
+            loaded: false,
+            jumpIdentifier: this.props.jumpIdentifier,
+            verificationHash: this.props.verificationHash
+        }
     }
-    componentWillMount() {
-        let {jumpName, jumpDate, dropAltitude, freefall, handleChange, contract, jumps } = this.props
-        console.log("**name ", jumpName, "**jumpDate", jumpDate, "**dropAltitude", dropAltitude, "**freefall", freefall, "**dna")
-        contract.logJump({
-            jumpName: jumpName,
-            jumpDate: jumpDate,
-            dropAltitude: parseInt(dropAltitude, 10),
-            freefall: parseInt(freefall, 10),
-        }, DEFAULT_GAS_VALUE).then(response => {
-            console.log("[animation.js] logging", response)
-            let jump = response
-            let newJumps = jumps.concat(jump)
-            handleChange({ name: "jumpIdentifier", value: jump.jumpIdentifier })
-            console.log(jump);
-            handleChange({ name: "jumps", value: newJumps })
-            this.setState({running:false})
-        }).catch(err => {
-            console.log(err);
+
+    componentDidMount() {
+        console.log(this.state.jumpIdentifier, this.state.verificationHash)
+        this.loadData().then(() => {
+            this.setState({loaded:true})
+            console.log('animation props :', this.props)
+            let {jumpIdentifier, verificationHash, handleChange, contract, jumps } = this.props
+            console.log("**jumpIdentifier", jumpIdentifier, "**verificationhash", verificationHash)
+            contract.logMilitaryJump({
+                jumpIdentifier: jumpIdentifier,
+                verificationHash: verificationHash,
+            }, DEFAULT_GAS_VALUE).then(response => {
+                console.log("[animation.js] logging", response)
+                let jump = response
+                let newJumps = jumps.concat(jump)
+                console.log(jump);
+                handleChange({ name: "jumps", value: newJumps })
+                this.setState({running:false})
+            }).catch(err => {
+                console.log(err);
+            })
         })
+      
     }
+
+    async loadData() {
+        await this.props
+    }
+        
     render() {
         let { jumpName, login, load, jumpIdentifier } = this.props
         const shadow = (

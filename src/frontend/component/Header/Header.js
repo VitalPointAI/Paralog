@@ -12,7 +12,7 @@ import './Header.css';
 
 class Header extends Component {
     render() {
-        let { login, load, requestSignOut, accountId, length, handleChange } = this.props
+        let { login, load, requestSignOut, accountId, jumpsLength, dropZonesLength, handleChange } = this.props
         let show = <Spinners />
         if (login && load) {
             show =
@@ -26,7 +26,8 @@ class Header extends Component {
             <Nav>
                 <Navigation
                 accountName={accountId}
-                number={length}
+                jumpNumber={jumpsLength}
+                dropZoneNumber={dropZonesLength}
                 requestSignOut={requestSignOut}
                 login={login}
                 handleChange={handleChange} />

@@ -3,6 +3,7 @@ import ReactDom from "react-dom";
 import getConfig from "./config.js";
 import * as nearlib from "near-api-js";
 import AppBuilder from "./frontend/container/index";
+import { initiateDB } from './frontend/utils/ThreadDB';
 
 //initializing contract
 async function InitContract() {
@@ -26,8 +27,6 @@ async function InitContract() {
     // getting the account ID.  If unauthorized yet, it's just an empty string.
     window.accountId = window.walletAccount.getAccountId();
 
-   
-   
     // initializing contract APIs by contract name and configuration
     let acct = await new nearlib.Account(
         window.near.connection,
@@ -46,19 +45,32 @@ async function InitContract() {
                 "getSender",
                 "getJumps",
                 "getIdentity",
+                "registrarOfDropZone",
+                "getDropZonesByRegistrar",
+                "getDropZones",
+                "getRegistrar",
             ],
             // change methods can modify the state, but you don't get the returned value when called
             changeMethods: [
-                "logJump",
+                "logMilitaryJump",
                 "setJump",
                 "setJumpsByJumper",
                 "setIdentity",
                 "deleteJumpProfile",
+                "registerDropZone",
+                "setDropZone",
+                "setDropZonesByRegistrar",
+                "deleteDropZoneProfile"
             ],
             // sender is the account ID to initialize transactions
             sender: window.accountId,
         }
     );
+
+    if(window.accountId !== '') {
+        window.db = await initiateDB()
+        console.log('windowdb ', window.db)
+    }
 
 }
 
@@ -66,7 +78,7 @@ async function InitContract() {
 window.nearInitPromise = InitContract()
     .then(() => {
         ReactDom.render(
-            <AppBuilder contract={window.contract} wallet={window.walletAccount} />,
+            <AppBuilder contract={window.contract} wallet={window.walletAccount} db={window.db}/>,
             document.getElementById("root")
         );
     })

@@ -8,27 +8,34 @@ import './navigation.css';
 let generate = require('project-name-generator');
 
 class Navigation extends Component {
+
     componentDidMount() {
         if (!this.props.login) { return <Redirect push to="/" /> }
     }
+
     switchToProfile = () => {
         this.props.history.push("/profile")
     }
+
+
 
     InfoChangeHandler = () => {
         this.props.handleChange({name:"jumpName", value: generate({ words: 2, alliterative: true }).spaced})
     }
 
     render() {
-        let { accountName, number, requestSignOut } = this.props
-        let des = "My Jumps (" + number + ")"
+        let { accountName, jumpNumber, dropZoneNumber, requestSignOut } = this.props
+        let jumpButtonLabel = "My Jumps (" + jumpNumber + ")"
+        let dropZoneButtonLabel = "Drop Zones (" + dropZoneNumber + ")"
         return (
            
             <div className="wrap">
                 <div className="account">
-                    <NavLink to="/account" ><Button description={des} /></NavLink>
+                    <NavLink to="/dropzones" ><Button description={dropZoneButtonLabel} /></NavLink>
+                    <NavLink to="/account" ><Button description={jumpButtonLabel} /></NavLink>
                     <Card accountName={accountName} requestSignOut={requestSignOut} switchToProfile={this.switchToProfile} />
                     <NavLink to="/log"><AddJump InfoChangeHandler={this.InfoChangeHandler}/></NavLink>
+                    <NavLink to="/dropzone-register"><AddDropZone /></NavLink>
                 </div>
                
             </div>
@@ -56,4 +63,8 @@ const Card = ({ accountName, requestSignOut, switchToProfile }) => {
 
 const AddJump = ({InfoChangeHandler}) => (    
         <BsFillPlusSquareFill className="add-jump" onClick={InfoChangeHandler}/>
+)
+
+const AddDropZone = () => (    
+    <BsFillPlusSquareFill className="add-jump"/>
 )
