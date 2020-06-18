@@ -16,6 +16,7 @@
         "test": "asp && npm run build:contract && jest test --runInBand"
     },
     "dependencies": {
+        "@babel/plugin-proposal-class-properties": "^7.10.1",
         "@textile/hub": "^0.1.4",
         "@textile/threads": "^0.1.2",
         "@textile/threads-core": "^0.1.18",
@@ -45,7 +46,6 @@
     },
     "devDependencies": {
         "@babel/core": "^7.10.2",
-        "@babel/plugin-proposal-class-properties": "^7.10.1",
         "@babel/preset-env": "^7.10.2",
         "@babel/preset-react": "^7.10.1",
         "@babel/preset-typescript": "^7.10.1",
