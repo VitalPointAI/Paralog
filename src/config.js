@@ -1,8 +1,6 @@
 /* TODO: fill this in!*/
 const CONTRACT_NAME = "paralog.vitalpointai.testnet";
 
-require('dotenv').config();
-
 function getConfig(env) {
   switch (env) {
     case "production":

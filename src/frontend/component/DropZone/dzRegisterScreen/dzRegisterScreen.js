@@ -157,4 +157,4 @@ class DZRegisterScreen extends Component {
     }
 }
 
-export default GoogleApiWrapper({apiKey: process.env.GOOGLE_API_KEY })(DZRegisterScreen)
+export default GoogleApiWrapper({apiKey: process.env.PUBLIC_GOOGLE_API_KEY })(DZRegisterScreen)
