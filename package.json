@@ -16,7 +16,6 @@
         "test": "asp && npm run build:contract && jest test --runInBand"
     },
     "dependencies": {
-        "@babel/plugin-proposal-class-properties": "^7.10.1",
         "@textile/hub": "^0.1.4",
         "@textile/threads": "^0.1.2",
         "@textile/threads-core": "^0.1.18",
@@ -65,13 +64,10 @@
     },
     "babel": {
         "presets": [
-          "@babel/preset-env",
-          "@babel/preset-react"
-        ],
-        "plugins": [
-          "@babel/plugin-proposal-class-properties"
+            "@babel/preset-env",
+            "@babel/preset-react"
         ]
-      },
+    },
     "jest": {
         "moduleNameMapper": {
             "\\.(jpg|ico|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/src/__mocks__/fileMock.js",
