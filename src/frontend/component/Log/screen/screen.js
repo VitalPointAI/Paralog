@@ -166,4 +166,4 @@ class Screen extends Component {
     }
 }
 
-export default GoogleApiWrapper({apiKey: process.env.PUBLIC_GOOGLE_API_KEY })(Screen)
+export default GoogleApiWrapper({apiKey: process.env.LOCAL_GOOGLE_API_KEY })(Screen)

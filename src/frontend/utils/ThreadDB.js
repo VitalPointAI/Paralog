@@ -1,11 +1,12 @@
 import {Libp2pCryptoIdentity} from '@textile/threads-core';
-import { Client, ThreadID } from '@textile/threads';
+import { ThreadID } from '@textile/threads';
+import { Client, createAPISig } from '@textile/hub';
 import { encryptSecretBox, decryptSecretBox, parseEncryptionKey } from './Encryption'
 
-export const DEFAULT_GAS_VALUE = 10000000000000;
+//export const DEFAULT_GAS_VALUE = 10000000000000;
 
 async function getIdentity(accountId) {
-
+   
     /** Restore any cached user identity first */
     const cached = localStorage.getItem(process.env.THREADDB_IDENTITY_STRING)
     
@@ -18,7 +19,7 @@ async function getIdentity(accountId) {
     if (cached === null) {
             try {
                 let retrieveId = await window.contract.getIdentity({threadId: accountId});
-                let identity = await decryptSecretBox(retrieveId);
+                let identity = decryptSecretBox(retrieveId);
                 return Libp2pCryptoIdentity.fromString(identity.identity); 
             } catch (err) {
                 parseEncryptionKey(accountId);
@@ -27,13 +28,17 @@ async function getIdentity(accountId) {
                 /** Add the string copy to the cache */
                 localStorage.setItem(process.env.THREADDB_IDENTITY_STRING, identity.toString())
                 /** Return the random identity */
-                let encryptedId = await encryptSecretBox(identity.toString());
+                let encryptedId = encryptSecretBox(identity.toString());
                
                 const threadId = ThreadID.fromRandom();
                 let stringThreadId = threadId.toString();
                 localStorage.setItem(process.env.THREADDB_USER_THREADID, stringThreadId);
+
+                // register user role and add account to member list
+                await window.contract.registerUserRole({user: accountId, role: 'jumper'}, process.env.DEFAULT_GAS_VALUE);
+                await window.contract.addMember({user: accountId}, process.env.DEFAULT_GAS_VALUE);
              
-                await window.contract.setIdentity({threadId: encryptedId, threadIdarray: stringThreadId}, DEFAULT_GAS_VALUE);
+                await window.contract.setIdentity({threadId: encryptedId, threadIdarray: stringThreadId}, process.env.DEFAULT_GAS_VALUE);
                 return Libp2pCryptoIdentity.fromString(identity.toString()); 
             }
     }             
@@ -43,17 +48,18 @@ async function getThreadId(accountId) {
 
     /** Restore any cached user identity first */
     const cached = localStorage.getItem(process.env.THREADDB_USER_THREADID)
+    console.log('cached threadId', cached)
     
     if (cached !== null) {
-    /**Convert the cached identity string to a Libp2pCryptoIdentity and return */
-    return cached
+        return cached
     }
 
     /** Try and retrieve from contract if it exists */
     if (cached === null) {
             try {
                 let retrieveId = await window.contract.getIdentity({threadId: accountId});
-                let identity = await decryptSecretBox(retrieveId);
+                let identity = decryptSecretBox(retrieveId);
+                console.log('retrieved threadId decrypted', identity.threadId)
                 return identity.threadId; 
             } catch (err) {
                console.log(err);
@@ -61,7 +67,13 @@ async function getThreadId(accountId) {
     }             
 }
 
+export const getAPISig = async (seconds = 300) => {
+    const expiration = new Date(Date.now() + 1000 * seconds)
+    return await createAPISig(process.env.USER_API_SECRET, expiration)
+}
+
 export async function initiateDB() {
+    let dbObj;
     const keyInfo = {
         key: process.env.USER_API_KEY,
         secret: process.env.USER_API_SECRET,
@@ -72,29 +84,54 @@ export async function initiateDB() {
     const threadId = await getThreadId(window.accountId);
     
     const db = await Client.withKeyInfo(keyInfo)
-    await db.getToken(identity)
+    const token = await db.getToken(identity)
+
+    const cachedToken = localStorage.getItem(process.env.THREADDB_TOKEN_STRING)
+
+    if(!cachedToken || cachedToken !== token) {
+        localStorage.removeItem(process.env.THREADDB_TOKEN_STRING)
+        localStorage.setItem(process.env.THREADDB_TOKEN_STRING, token)
+    }
+  
     console.log(JSON.stringify(db.context.toJSON()))
-    if(!db.getDBInfo(ThreadID.fromString(threadId))) {
+    try {
+        await db.getDBInfo(ThreadID.fromString(threadId))
+        dbObj = {
+            db: db,
+            threadId: threadId,
+            token: token
+        }
+    } catch (err) {
         await db.newDB(ThreadID.fromString(threadId));
         console.log('DB created');
-    }
-    const dbObj = {
-        db: db,
-        threadId: threadId
+        dbObj = {
+            db: db,
+            threadId: threadId,
+            token: token
+        }
     }
     return dbObj
 }
 
 
-export async function initiateCollection(db, threadId, collection, schema) {
+export async function initiateCollection(collection, schema) {
+    const auth = await getAPISig()
+    const credentials = {
+        ...auth,
+        key: process.env.USER_API_KEY,
+        token: localStorage.getItem(process.env.THREADDB_TOKEN_STRING)
+      };
+      console.log('credentials', credentials)
+    const db = Client.withUserAuth(credentials)
+
     try {
-        const r = await db.find(ThreadID.fromString(threadId), collection, {})
+        const r = await db.find(ThreadID.fromString(localStorage.getItem(process.env.THREADDB_USER_THREADID)), collection, {})
         console.log('r :', r)
         console.log('found :', r.instancesList.length)    
         return r
     } catch (err) {
         console.log(err);
-        await db.newCollection(ThreadID.fromString(threadId), collection, schema);
+        await db.newCollection(ThreadID.fromString(localStorage.getItem(process.env.THREADDB_USER_THREADID)), collection, schema);
         console.log('New collection created', collection);
     }
 }
@@ -123,51 +160,54 @@ export async function dataURItoBlob(dataURI)
     return new Blob([ia], {type: mimeString});
 }
 
-export async function retrieveRecord(id, db, threadId, collection) {
+export async function retrieveRecord(id, collection) {
+    const auth = await getAPISig()
+    const credentials = {
+        ...auth,
+        key: process.env.USER_API_KEY,
+        token: localStorage.getItem(process.env.THREADDB_TOKEN_STRING)
+      };
+    const db = Client.withUserAuth(credentials)
     let obj
-    let initiated = await initiateDB()
-    console.log('initiated', initiated)
     try {
-      
-      //  initiated.then((instanced) => {
-            let r = await db.findByID(ThreadID.fromString(threadId), collection, id)
-          //  r.then((result) => {
-                console.log('r', r)
-                var imageBlob = await dataURItoBlob(r.instance.jumpPhotos.toString())
-                console.log('imageBlob', imageBlob)
-                var imageObjectURL = URL.createObjectURL(imageBlob)
-                console.log('imageobjecturl', imageObjectURL)
-                let instanceObj = {
-                    jumpName: r.instance.jumpName,
-                    jumpDate: r.instance.jumpDate,
-                    jumpPhotos: r.instance.jumpPhotos,
-                }
-            console.log('jumpname obj', instanceObj.jumpName)
-            console.log('jumpdate obj', instanceObj.jumpDate)
-            console.log('jumpphotos obj', instanceObj.jumpPhotos)
-            console.log('instance objinside', instanceObj)
-           // return instanceObj
-            obj = instanceObj
-            console.log('obj inside', obj)
-           
-        //    })
-      //  console.log('instanced', instanced)   
-      //  })
-
-        //    var blobObject = await this.blobCreationFromURL(r.instance.jumpPhotos)
+        let r = await db.findByID(ThreadID.fromString(localStorage.getItem(process.env.THREADDB_USER_THREADID)), collection, id)        
+        obj = r.instance
     } catch (err) {
         console.log('error', err)
         console.log('id does not exist')
     }
-    console.log('object', obj)
     return obj
 }
 
-export async function deleteRecord(id, db, threadId, collection) {
-    let initiated = await initiateDB()
-    console.log('initiated', initiated)
+export async function createRecord(collection, record) {
+    const auth = await getAPISig()
+    const credentials = {
+        ...auth,
+        key: process.env.USER_API_KEY,
+        token: localStorage.getItem(process.env.THREADDB_TOKEN_STRING)
+      };
+    const db = Client.withUserAuth(credentials)
     try {
-        await db.delete(ThreadID.fromString(threadId), collection, [id])
+       await db.create(ThreadID.fromString(localStorage.getItem(process.env.THREADDB_USER_THREADID)), collection, record)        
+       console.log('success record created')
+    } catch (err) {
+        console.log('error', err)
+        console.log('there was a problem, record not created')
+    }
+}
+
+
+
+export async function deleteRecord(id, collection) {
+    const auth = await getAPISig()
+    const credentials = {
+        ...auth,
+        key: process.env.USER_API_KEY,
+        token: localStorage.getItem(process.env.THREADDB_TOKEN_STRING)
+      };
+    const db = Client.withUserAuth(credentials)
+    try {
+        await db.delete(ThreadID.fromString(localStorage.getItem(process.env.THREADDB_USER_THREADID)), collection, [id])
         console.log('record deleted')
     } catch (err) {
         console.log('error', err)

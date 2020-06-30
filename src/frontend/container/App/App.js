@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import { Route, Switch, withRouter, Redirect } from 'react-router-dom';
 
-import Header from '../../component/Header/Header';
+import HeaderNav from '../../component/Header/Header';
 import Footer from '../../component/footer/footer';
 import Home from '../../component/home/home';
 import Log from '../../component/Log/log';
@@ -14,12 +14,13 @@ import SocialShare from '../../component/SocialShare/SocialShare';
 import ShowPage from '../../component/showpage/showpage';
 import DropZoneRegister from '../../component/DropZone/dzRegister';
 import DropZoneRegistering from '../../component/DropZone/DropZoneRegistering/registering'
+import Admin from '../../component/Admin/admin'
 
 import './App.css';
 
 let generate = require('project-name-generator');
 
-export const DEFAULT_GAS_VALUE = 100000000000000;
+//export const DEFAULT_GAS_VALUE = 100000000000000;
 
 class App extends Component {
     constructor(props) {
@@ -33,6 +34,7 @@ class App extends Component {
             back: false,
             jumps: [],
             dropZones: [],
+            roles: [],
             accountId: '',
 
             //Jump Log State
@@ -69,9 +71,9 @@ class App extends Component {
             dzRegistrar: this.props.accountId,
             dzPhotos: [],
 
-            //ThreadDB State
-            threadId: '',
-            db: ''
+            // Admin
+            user: '',
+            role: '',
         }
         this.signedInFlow = this.signedInFlow.bind(this);
         this.requestSignIn = this.requestSignIn.bind(this);
@@ -79,14 +81,17 @@ class App extends Component {
 
     componentDidMount() {
       
-        console.log('db props', this.props.db)
         let loggedIn = window.walletAccount.isSignedIn()
 
         if (loggedIn) {
+            this.setState({
+                loggedIn: true
+            })
             this.signedInFlow();
-           
-           
         } else {
+            this.setState({
+                loggedIn: false
+            })
             this.signedOutFlow();
         }
     }
@@ -107,6 +112,10 @@ class App extends Component {
         return this.props.contract.getDropZones({ registrar: registrar });
     }
 
+    getUserRoles = (user) => {
+        return this.props.contract.getUserRoles({ user: user });
+    }
+
     async signedInFlow() {
         const accountId = await this.props.wallet.getAccountId();
             this.setState({
@@ -114,6 +123,7 @@ class App extends Component {
             })
             console.log('signed in accountid ', this.state.accountId)
 
+        // fill User Jumps Array
         this.getJumps(accountId).then(res => {
             console.log(res.len)
             console.log(res)
@@ -129,6 +139,25 @@ class App extends Component {
             } else {
                 this.setState({
                     jumps: res.jumps,
+                    loaded: true
+                });
+            }
+        }).catch(err => {
+            console.log(err);
+        })
+
+        // fill User Roles array
+        this.getUserRoles(accountId).then(res => {
+            console.log(res.len)
+            console.log(res)
+        
+            if (res == null || res.role == null || res.role.length < 1) {
+                this.setState({
+                    loaded: true
+                });
+            } else {
+                this.setState({
+                    roles: res.role,
                     loaded: true
                 });
             }
@@ -180,21 +209,23 @@ class App extends Component {
             jumper, jumpName, jumpDate, dropAltitude, freefall, pullAltitude,
             dropZone, aircraftType, jumpType, milExitType, milFFCanopySN, milFFCanopyType,
             milResCanopyType, milFFResCanopySN, milMainCanopyType, milMainCanopySN,
-            milResCanopySN, milFFResCanopyType, jumpPhotos, jumpVideos, infoWindow, 
+            milResCanopySN, milFFResCanopyType, jumpPhotos, jumpVideos, user, role, roles, 
             
             dzId, dropZoneName, dzDateRegistered, dzLatitude, dzLongitude, dzRegistrar, dzVerificationHash, dzPhotos } = this.state
 
         console.log('before props ', accountId, jumpIdentifier, verificationHash)
-        let { contract, db } = this.props
+        let { contract, account } = this.props
+        console.log('account here', account)
         return (
 
             <div className="App">
 
-                <Header
+                <HeaderNav
                     login={loggedIn}
-                    load={loaded}
+                    loaded={loaded}
                     requestSignIn={this.requestSignIn}
                     requestSignOut={this.requestSignOut}
+                    account={account}
                     accountId={accountId}
                     jumpsLength={jumps.length}
                     dropZonesLength={dropZones.length}
@@ -211,9 +242,26 @@ class App extends Component {
                                 login={loggedIn}
                                 load={loaded}
                                 requestSignIn={this.requestSignIn}
+                                account={account}
                                 accountId={accountId}
                                 jumpsLength={jumps.length}
                                 dropZonesLength={dropZones.length}
+                            />
+                        }
+                    />
+
+                    <Route
+                        exact
+                        path='/admin'
+                        render={() => 
+                            <Admin
+                                login={loggedIn}
+                                loaded={loaded}
+                                user={user}
+                                role={role}
+                                handleChange={this.handleChange}
+                                contract={contract}
+                                roles={roles}
                             />
                         }
                     />
@@ -227,8 +275,6 @@ class App extends Component {
                                 load={loaded}
                                 handleChange={this.handleChange}
                                 handleDateChange={this.handleDateChange}
-                                db={db.db}
-                                threadId={db.threadId}
                                 jumpIdentifier={jumpIdentifier}
                                 verificationHash={verificationHash}
                                 accountId={accountId}
@@ -264,8 +310,8 @@ class App extends Component {
                                 load={loaded}
                                 login={loggedIn}
                                 jumps={jumps}
-                                db={db.db}
-                                threadId={db.threadId}
+                                contract={contract}
+                                handleChange={this.handleChange}
                             />
                         }
                     />
@@ -279,8 +325,6 @@ class App extends Component {
                                 login={loggedIn}
                                 jumps={jumps}
                                 contract={contract}
-                                db={db.db}
-                                threadId={db.threadId}
                                 handleChange={this.handleChange} 
                             />
                         }
@@ -295,8 +339,6 @@ class App extends Component {
                                 login={loggedIn}
                                 contract={contract}
                                 jumps={jumps}
-                                db={db.db}
-                                threadId={db.threadId}
                                 backDrop={backDrop}
                                 back={back}
                                 backdropCancelHandler={this.backdropCancelHandler}
@@ -367,8 +409,6 @@ class App extends Component {
                                 accountId={accountId}
                                 jumps={jumps}
                                 contract={contract}
-                                db={db.db}
-                                threadId={db.threadId}
                                 handleChange={this.handleChange}
                                 dzId={dzId}
                                 dzDateRegistered={dzDateRegistered}

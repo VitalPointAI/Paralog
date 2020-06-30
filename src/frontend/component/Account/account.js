@@ -1,55 +1,54 @@
 import React, { Component } from 'react';
-import { Redirect, Link } from 'react-router-dom';
-import { Container, Card } from 'react-bootstrap';
+import { Redirect } from 'react-router-dom';
+import { Container, Card, Header } from 'semantic-ui-react';
+import JumpCard from './JumpCard/jumpCard'
 
-import CreationAccount from '../creation/creationAccount/creationAccount'
 import './account.css';
 
 class Account extends Component {
+    constructor(props) {
+        super(props)
+        this.state = {
+            running: false
+        }
+    }
+
+    handleDelete = () => {
+        let state = this.state.running
+        this.setState({ running: !state })
+    }
+
     render() {
-        let { jumps, login, load } = this.props
+        let { jumps, login, load, handleChange, contract } = this.props
         console.log('jumps ', jumps)
         if (load && !login) {return <Redirect to="/" />}
         let Jumps = 'loading'
         if (jumps && jumps.length === 0) { return <Redirect to="/log" /> }
+        
         if (jumps.length > 0) {
             Jumps = jumps.map(jump => {
                 return (
-                    <Card key={jump.jumpIdentifier} className="spacing">
-                        <Card.Header>
-                            <Link to={{
-                                pathname: "/@" + jump.jumpIdentifier,
-                                hash: jump.jumpIdentifier
-                                }} key={jump.jumpIdentifier}>
-                            <h3>{jump.jumpIdentifier}</h3>
-                            </Link>
-                        </Card.Header>
-                        <Card.Body>
-                            <CreationAccount
-                                jumpName={jump.jumpName}
-                                jumpDate={jump.jumpDate}
-                                dropAltitude={jump.dropAltitude}
-                                freefall={jump.freefall}
-                            />
-                        </Card.Body>
-                    </Card>
+                        <JumpCard
+                            key={jump.jumpIdentifier}
+                            contract={contract}
+                            jump={jump}
+                            handleChange={handleChange}
+                            handleDelete={this.handleDelete} />
                     )
             })
         }
+            
         return (
-            <div>
             <Container>
-                <div>
-                    <h1 className="head">Your Jumps</h1>
-                    <p>Review and Share</p>
-                </div>
-               
-                    {Jumps}
-               
+                <Header as='h1'>Your Jumps</Header>
+                <Header as='h3'>Review, Delete, and Share</Header>
+                <Card.Group>
+                 {Jumps}
+                </Card.Group>
             </Container>
-            </div>
         )
+        }
     }
-}
+
 
 export default Account

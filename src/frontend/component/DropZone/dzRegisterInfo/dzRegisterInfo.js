@@ -9,9 +9,8 @@ import Button from '../../common/Button/Button';
 
 import './dzRegisterInfo.css';
 import 'react-datepicker/dist/react-datepicker.css';
-import { ThreadID } from '@textile/threads';
 import { generateHash } from '../../../utils/Encryption';
-import { initiateDB, initiateCollection } from '../../../utils/ThreadDB';
+import { initiateCollection, createRecord } from '../../../utils/ThreadDB';
 import { dropZoneSchema } from '../../../schemas/DropZone';
 
 class DZRegisterInfo extends Component {
@@ -26,8 +25,6 @@ class DZRegisterInfo extends Component {
             dzLatitude: '',
             dzLongitude: '',
             dzPhotos: [],
-            threadId: this.props.threadId,
-            db: this.props.db,
             loaded: false,
         };
 
@@ -113,9 +110,9 @@ class DZRegisterInfo extends Component {
         e.preventDefault();
        this.generateDzId();
        this.generateDzVerificationHash();
-       await initiateDB();
-       await initiateCollection(this.state.db, this.state.threadId, 'DropZone', dropZoneSchema)
-       await (this.state.db).create(ThreadID.fromString(this.state.threadId), 'DropZone', [
+      
+       await initiateCollection('DropZone', dropZoneSchema)
+       await createRecord('DropZone', [
                   {
                     _id: (this.state.dzId).toString(),
                     name: (this.state.dropZoneName).toString(),

@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import {Redirect} from 'react-router-dom';
 import { Container } from 'react-bootstrap';
 import Poster from './poster/poster'
 import Features from './features/features'
@@ -7,10 +6,10 @@ import Features from './features/features'
 import './home.css';
 class Home extends Component {
     render() {
-        let { login, load, requestSignIn, accountId, jumpsLength, dropZonesLength } = this.props
-      //  if (login && jumpsLength === 0) {return <Redirect to="/log"/>}
+        let { login, load, requestSignIn, accountId } = this.props
+      
         return (
-          <Container>
+          <Container className="main">
                 <Poster 
                     requestSignIn={requestSignIn} 
                     load={load} 

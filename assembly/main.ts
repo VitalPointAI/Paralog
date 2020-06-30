@@ -2,13 +2,14 @@ import {
     context,
     storage,
     PersistentMap,
+    PersistentVector,
     logging,
     base64,
     math,
 } from "near-sdk-as";
 import {  MilitaryParachuteJump, MilitaryJumpMetaData, MilitaryJumpArray, 
           DropZone, DropZoneArray, DropZoneMetaData, 
-          UserIdentity } from "./model";
+          UserIdentity, UserRole, UserRoleMetaData } from "./model";
 
 const JUMPER_IDENTIFIER: u32 = 8;
 const REGISTRAR_IDENTIFIER: u32 = 8;
@@ -29,6 +30,11 @@ let dropZonesByRegistrar = new PersistentMap<string, DropZoneMetaData>("dropZone
 
 // store user identity
 let userIdentity = new PersistentMap<string, UserIdentity>("userIdentity");
+let userRoleList = new PersistentVector<UserRoleMetaData>("role");
+let userRoles = new PersistentMap<string, UserRoleMetaData>("userRoles");
+let users = new PersistentVector<string>("users")
+
+//enum UserRoleTypes { jumper, coach, dzoperator, association }
 
 // **************************************************
 
@@ -90,6 +96,94 @@ export function getIdentity(threadId: string): UserIdentity {
   let identity = userIdentity.getSome(threadId);
   return identity;
 }
+
+export function getUserRoles(user: string): Array<string> {
+  let roleId = userRoles.get(user);
+  if(!roleId) {
+    return new Array<string>();
+  }
+  let role = roleId.rolelog;
+  return role;
+}
+
+export function getAllUserRoles(): Array<UserRoleMetaData> {
+  let users = new Array<UserRoleMetaData>();
+  logging.log(users);
+  for (let i: i32 = 0; i < userRoleList.length; i++) {
+    users.push(userRoleList[i]);
+  }
+  return users;
+}
+
+export function setUserRoles(role: UserRole): void {
+  let _userId = getUserRoles(role.user);
+  logging.log(_userId);
+  if(_userId == null) {
+    _userId = new Array<string>();
+    _userId.push(role.role);
+  }
+  let jo = new UserRoleMetaData();
+  jo.rolelog = _userId;
+  userRoles.set(role.user, jo);
+}
+
+export function addMember(user: string): void {
+  let present = false;
+  for(let i: i32 = 0; i < users.length; i++) {
+    if (users[i] == user) {
+      present = true;
+    }
+  }
+  if (!present) {
+    users.push(user);
+  }
+}
+
+export function listMembers(): Array<string> {
+  let members = new Array<string>();
+for (let i: i32 = 0; i<users.length; i++) {
+  members.push(users[i]);
+}
+  return members;
+}
+
+export function changeUserRole(user: string, role: string): void {
+  if(context.sender == 'aaron.testnet') {
+    logging.log('deleting old user')
+    userRoles.delete(user)
+    logging.log('registering new user/role')
+    _registerUserRole(user, role);
+  } else {
+    logging.log("unauthorized function call");
+  }
+}
+
+// Log user roles
+
+export function registerUserRole(
+  user: string,
+  role: string
+  ): UserRole {
+  logging.log("registering user role");
+  return _registerUserRole(
+    user,
+    role
+  );
+  }
+  
+  function _registerUserRole(
+    user: string,
+    role: string
+  ): UserRole {
+    logging.log("start registering user role");
+    let userRole = new UserRole();
+    userRole.user = user;
+    userRole.role = role;
+    setUserRoles(userRole);
+    logging.log("registered new user role");
+    return userRole;
+  }
+
 
 // Methods for Jumps
 

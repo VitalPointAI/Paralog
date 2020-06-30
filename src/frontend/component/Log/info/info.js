@@ -9,9 +9,8 @@ import Button from '../../common/Button/Button';
 
 import './info.css';
 import 'react-datepicker/dist/react-datepicker.css';
-import { ThreadID } from '@textile/threads';
 import { generateHash } from '../../../utils/Encryption';
-import { initiateDB, initiateCollection, retrieveRecord } from '../../../utils/ThreadDB';
+import { initiateCollection, retrieveRecord, createRecord } from '../../../utils/ThreadDB';
 import { militaryJumpSchema } from '../../../schemas/MilitaryJump';
 
 let generate = require('project-name-generator');
@@ -42,8 +41,6 @@ class Info extends Component {
             jumpPhotos: [],
             jumpVideos: 'nil',
             verificationHash: this.props.verificationHash,
-            threadId: this.props.threadId,
-            db: this.props.db,
             loaded: false,
         };
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -117,7 +114,7 @@ class Info extends Component {
     handleDropZone = async (event) => {
         let value = event.target.value;
         try {
-        let record = await retrieveRecord(id, this.state.db, this.state.threadId, 'DropZone')
+        let record = await retrieveRecord(this.state.id, 'DropZone')
         console.log('drop zone record', record)
         } catch (err) {
             console.log(err)
@@ -200,7 +197,7 @@ class Info extends Component {
         )
         console.log(data)
         let verificationHash = await generateHash(data);
-        await this.setState({
+        this.setState({
             verificationHash: verificationHash.toString()
         })
         console.log('verification hash ', this.state.verificationHash)
@@ -210,9 +207,8 @@ class Info extends Component {
         e.preventDefault();
        await this.generateId();
        await this.generateVerificationHash();
-       await initiateDB();
-       await initiateCollection(this.state.db, this.state.threadId, 'MilitaryJump', militaryJumpSchema)
-       await (this.state.db).create(ThreadID.fromString(this.state.threadId), 'MilitaryJump', [
+       await initiateCollection('MilitaryJump', militaryJumpSchema)
+       await createRecord('MilitaryJump', [
                   {
                     _id: (this.state.jumpIdentifier).toString(),
                     jumper: (this.state.jumper).toString(),

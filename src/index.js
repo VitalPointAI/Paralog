@@ -5,6 +5,8 @@ import * as nearlib from "near-api-js";
 import AppBuilder from "./frontend/container/index";
 import { initiateDB } from './frontend/utils/ThreadDB';
 
+import 'semantic-ui-css/semantic.min.css';
+
 //initializing contract
 async function InitContract() {
     window.nearConfig = getConfig("development");
@@ -28,13 +30,14 @@ async function InitContract() {
     window.accountId = window.walletAccount.getAccountId();
 
     // initializing contract APIs by contract name and configuration
-    let acct = await new nearlib.Account(
+    window.acct = new nearlib.Account(
         window.near.connection,
         window.accountId
     );
-    console.log("acct", acct);
-    window.contract = await new nearlib.Contract(
-        acct,
+    console.log("acct", window.acct);
+    
+    window.contract = new nearlib.Contract(
+        window.acct,
         window.nearConfig.contractName,
         {
             // view methods are read only.  They don't modify state but usually return a value
@@ -49,6 +52,9 @@ async function InitContract() {
                 "getDropZonesByRegistrar",
                 "getDropZones",
                 "getRegistrar",
+                "getUserRoles",
+                "getAllUserRoles",
+                "listMembers"
             ],
             // change methods can modify the state, but you don't get the returned value when called
             changeMethods: [
@@ -60,7 +66,12 @@ async function InitContract() {
                 "registerDropZone",
                 "setDropZone",
                 "setDropZonesByRegistrar",
-                "deleteDropZoneProfile"
+                "deleteDropZoneProfile",
+                "setUserRoles",
+                "registerUserRole",
+                "addMember",
+                "changeUserRole",
+                "registerUserRoleTest"
             ],
             // sender is the account ID to initialize transactions
             sender: window.accountId,
@@ -68,8 +79,7 @@ async function InitContract() {
     );
 
     if(window.accountId !== '') {
-        window.db = await initiateDB()
-        console.log('windowdb ', window.db)
+        await initiateDB()
     }
 
 }
@@ -78,7 +88,7 @@ async function InitContract() {
 window.nearInitPromise = InitContract()
     .then(() => {
         ReactDom.render(
-            <AppBuilder contract={window.contract} wallet={window.walletAccount} db={window.db}/>,
+            <AppBuilder contract={window.contract} wallet={window.walletAccount} account={window.acct}/>,
             document.getElementById("root")
         );
     })

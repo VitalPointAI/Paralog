@@ -4,7 +4,6 @@ import { Keyframes, Frame } from 'react-keyframes';
 import { ProgressBar } from 'react-bootstrap';
 
 import Spinners from '../../common/spinner/spinner';
-import {DEFAULT_GAS_VALUE} from "../../../container/App/App";
 
 import './animation.css';
 class Animation extends Component {
@@ -28,7 +27,7 @@ class Animation extends Component {
             contract.logMilitaryJump({
                 jumpIdentifier: jumpIdentifier,
                 verificationHash: verificationHash,
-            }, DEFAULT_GAS_VALUE).then(response => {
+            }, process.env.DEFAULT_GAS_VALUE).then(response => {
                 console.log("[animation.js] logging", response)
                 let jump = response
                 let newJumps = jumps.concat(jump)

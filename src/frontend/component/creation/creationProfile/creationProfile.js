@@ -31,18 +31,16 @@ class CreationProfile extends Component {
     }
 
     async loadData() {
-        let { jump, db, threadId } = this.props
-        let record = await retrieveRecord(jump.jumpIdentifier, db, threadId, 'MilitaryJump')
+        let { jump} = this.props
+        let record = await retrieveRecord(jump.jumpIdentifier, 'MilitaryJump')
         console.log('recordfinal', record)
         return record
     }
 
     deleteJump = () => {
-        let { contract, jump, handleChange, handleDelete, db, threadId } = this.props
-        console.log('db ', db)
-        console.log('threadId', threadId)
+        let { contract, jump, handleChange, handleDelete, } = this.props
         handleDelete()
-        deleteRecord(jump.jumpIdentifier, db, threadId, 'MilitaryJump') 
+        deleteRecord(jump.jumpIdentifier, 'MilitaryJump') 
         contract.deleteJumpProfile({
             tokenId: jump.jumpIdentifier
         }, DEFAULT_GAS_VALUE).then(response => {

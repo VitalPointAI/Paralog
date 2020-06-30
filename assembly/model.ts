@@ -5,6 +5,23 @@ export class UserIdentity {
     threadId: string;
 }
 
+@nearBindgen
+export class UserRole {
+    user: string;
+    role: string;
+}
+
+@nearBindgen
+export class UserRoleArray {
+    roles: Array<UserRole>;
+    len: i32;
+}
+
+@nearBindgen
+export class UserRoleMetaData {
+    rolelog: Array<string>;
+}
+
 // Jump Structures
 
 @nearBindgen

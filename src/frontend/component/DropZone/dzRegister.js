@@ -26,7 +26,6 @@ class DropZoneRegister extends Component {
     render() {
 
         let { login, load, handleChange, handleDateChange, accountId,
-            db, threadId,
             dzId, dzVerificationHash, dropZoneName, dzDateRegistered, dzLatitude, dzLongitude, dzPhotos,
             dzRegistrar } = this.props
 
@@ -54,8 +53,6 @@ class DropZoneRegister extends Component {
                                 dzLongitude={dzLongitude}
                                 dzRegistrar={dzRegistrar}
                                 dzPhotos={dzPhotos}
-                                threadId={threadId}
-                                db={db}
                             />
                         </Col>
                         <Col xs={8}>

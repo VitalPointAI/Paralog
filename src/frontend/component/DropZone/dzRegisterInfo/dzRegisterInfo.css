@@ -62,14 +62,14 @@
     min-width:350px !important;
   }
 
-  .icon {
+  .dzicon {
     margin-right: 10px;
     border-radius: 50%;
     box-shadow: 0 0 4px 4px rgba(0, 0, 0, 0.5), inset 0 0 5px 2px #ffffff;
     background: #f5ebff;
   }
   
-  .name-icon {
+  .dzname-icon {
     margin-right: 10px;
     color: #a51cea;
     border-radius: 50%;
