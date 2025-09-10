@@ -35,7 +35,7 @@
         "react-images-upload": "^1.2.8",
         "react-keyframes": "^0.2.3",
         "react-router-dom": "^5.1.2",
-        "react-scripts": "3.4.0",
+        "react-scripts": "5.0.1",
         "react-select": "^3.1.0",
         "regenerator-runtime": "^0.13.5",
         "semantic-ui-css": "^2.4.1",
